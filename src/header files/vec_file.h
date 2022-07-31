@@ -18,10 +18,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 //
-// A utility class parsing a file of vector of values and fill in a given 
+// A utility class parsing a file of vector of values and fill in a given
 // corresponding STL vector.
 //
-// Usage: 
+// Usage:
 // 1. Assign every vector of data in a file a specific unique index
 // 2. In each usage module define the vectors service as reference:
 //    #include <vec_file.h>
@@ -42,31 +42,32 @@
 #include <map>
 #include <vector>
 
-class vecFile 
+class vecFile
 {
- private:
-  std::vector<std::vector<int> >   intData;
-  std::vector<std::vector<float> > floatData;
+private:
+  std::vector<std::vector<int>> intData;
+  std::vector<std::vector<float>> floatData;
   int parse(std::string fileName, int asInt = 1);
- public:
-  std::vector<int>   *getIntVec(  unsigned int objIdx);
+
+public:
+  std::vector<int> *getIntVec(unsigned int objIdx);
   std::vector<float> *getFloatVec(unsigned int objIdx);
   friend class vecFiles;
 };
 
-typedef std::map<std::string, class vecFile*, std::less<std::string > > map_str_p_vf;
+typedef std::map<std::string, class vecFile *, std::less<std::string>> map_str_p_vf;
 
 class vecFiles
 {
- private:
-  static vecFiles * singleton;
+private:
+  static vecFiles *singleton;
 
   map_str_p_vf files;
   vecFiles();
   class vecFile *parseNewFile(std::string fileName, int isInt);
 
- public:
-  std::vector<int>   *getIntVec  (std::string fileName, int objIdx);
+public:
+  std::vector<int> *getIntVec(std::string fileName, int objIdx);
   std::vector<float> *getFloatVec(std::string fileName, int objIdx);
   static vecFiles *get();
   friend class vecFile;

@@ -5,11 +5,11 @@
 
 class NodeAlloc
 {
-    private:
+private:
     std::vector<int> allocVec_;
 
-    public:
-    void init(const char* s)
+public:
+    void init(const char *s)
     {
         std::ifstream nodeAllocFile(s);
         int sz;

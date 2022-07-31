@@ -28,19 +28,18 @@
 class Pktfwd : public omnetpp::cSimpleModule
 {
 public:
-
   // parameters
   double statRepTime_s; // time between statistics reporting
 
   // state
   int numPorts;          // number of switch ports
   std::vector<int> *FDB; // deterministic routing out port by dlid from vec file
-  cModule* Switch;
+  cModule *Switch;
 
 public:
   // get the output port for the given LID
   virtual int getPortByLID(unsigned int sLid, unsigned int dLid);
-  
+
   // report queuing of flits on TQ for DLID (can be negative for arb)
   virtual int repQueuedFlits(unsigned int rq, unsigned int tq, unsigned int dlid, int numFlits);
 
@@ -48,9 +47,9 @@ public:
   virtual void handleTQLoadMsg(unsigned int tq, unsigned int srcRank, unsigned int fitstLid, unsigned int lastLid, int load);
 
 protected:
-    virtual void initialize();
-    virtual void finish();
-	 ~Pktfwd();
+  virtual void initialize();
+  virtual void finish();
+  ~Pktfwd();
 };
 
 #endif

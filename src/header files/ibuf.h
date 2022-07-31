@@ -66,7 +66,7 @@
 //   - Decrease UsedStatic[VL] and update FREE[VL]
 //   - If the message that was sent is the last in the packet we need to
 //     send the "done" message to all connected ports.
-// 
+//
 // WHEN DO WE SEND DATA OUT?
 // * At any given time not more the maxBeingSent packets can be sent.
 //   The VLAs track this. Each VLA that wants to send the HOQ
@@ -90,12 +90,14 @@
 #include "pktfwd.h"
 #define MAX_LIDS 10
 
-// Store packet specific information to store the packet state  
-class PacketState {
+// Store packet specific information to store the packet state
+class PacketState
+{
   int outPort; // the out port
 
- public:
-  PacketState(int pn) {
+public:
+  PacketState(int pn)
+  {
     outPort = pn;
   };
 };
@@ -105,33 +107,33 @@ class PacketState {
 //
 class IBInBuf : public omnetpp::cSimpleModule
 {
- private:
-   omnetpp::cMessage *p_popMsg;
+private:
+  omnetpp::cMessage *p_popMsg;
   omnetpp::cMessage *p_minTimeMsg;
 
   // parameters:
-  double ISWDelay ; // delay in ns contributed by SW in IBUF
+  double ISWDelay;                     // delay in ns contributed by SW in IBUF
   std::vector<unsigned int> maxStatic; // max static credits for each VL
-  int maxBeingSent;             // max num packets sent out at a given time
-  unsigned int totalBufferSize; // The total buffer size in credits
-  unsigned int numPorts;        // the number of ports we drive
-  unsigned int maxVL;           // Maximum value of VL
-  unsigned int width;           // the width of the incoming port 1/4/8/12
-  int hcaIBuf;                  // > 0 if an HCA port IBuf
-  bool lossyMode;               // if true make this port lossy
+  int maxBeingSent;                    // max num packets sent out at a given time
+  unsigned int totalBufferSize;        // The total buffer size in credits
+  unsigned int numPorts;               // the number of ports we drive
+  unsigned int maxVL;                  // Maximum value of VL
+  unsigned int width;                  // the width of the incoming port 1/4/8/12
+  int hcaIBuf;                         // > 0 if an HCA port IBuf
+  bool lossyMode;                      // if true make this port lossy
 
   // data strcture
-  int numBeingSent;   // Number of packets being currently sent
-  
-  int hoqOutPort[8];  // The output port the packet at the HOQ is targetted to
-  std::vector<unsigned int> staticFree;  // number of free credits per VL
-  std::vector<long> ABR;    // total number of received credits per VL
-  unsigned int thisPortNum; // holds the port num this is part of
+  int numBeingSent; // Number of packets being currently sent
+
+  int hoqOutPort[8];                    // The output port the packet at the HOQ is targetted to
+  std::vector<unsigned int> staticFree; // number of free credits per VL
+  std::vector<long> ABR;                // total number of received credits per VL
+  unsigned int thisPortNum;             // holds the port num this is part of
 
   // there is only one packet stream allowed on the input so we track its
   // parameters simply by having the "current" values. We check for mix on the
   // push handler
-  int curPacketId; 
+  int curPacketId;
   int curPacketSrcLid;
   std::string curPacketName;
   unsigned int curPacketCredits;
@@ -141,11 +143,11 @@ class IBInBuf : public omnetpp::cSimpleModule
 
   // as we might have multiple sends we need to track the "active sends"
   // given the packet ID we track various state variables.
-  std::map<int, PacketState, std::less<int> > activeSendPackets;
+  std::map<int, PacketState, std::less<int>> activeSendPackets;
 
   // pointer the container switch
-  omnetpp::cModule* Switch;
-  Pktfwd* pktfwd;
+  omnetpp::cModule *Switch;
+  Pktfwd *pktfwd;
   int portsnum_parent;
 
   // statistics
@@ -170,10 +172,10 @@ class IBInBuf : public omnetpp::cSimpleModule
   void sendOutMessage(IBWireMsg *p_msg);
   void qMessage(IBWireMsg *p_msg);
   void handleSent(IBSentMsg *p_msg);
-  void sendRxCred(int vl, double delay); // send a RxCred message to the OBUF
-  void sendTxCred(int vl, long FCCS); // send a TxCred message to the VLA
+  void sendRxCred(int vl, double delay);          // send a RxCred message to the OBUF
+  void sendTxCred(int vl, long FCCS);             // send a TxCred message to the VLA
   void updateVLAHoQ(short int portNum, short vl); // send the HoQ if you can
-  void simpleCredFree(int vl); // perform a simple credit free flow
+  void simpleCredFree(int vl);                    // perform a simple credit free flow
 
   // return 1 if the HoQ at the given port and VL is free
   int isHoqFree(int portNum, int vl);
@@ -184,13 +186,10 @@ class IBInBuf : public omnetpp::cSimpleModule
   virtual void finish();
   virtual ~IBInBuf();
 
- public:
-
-  omnetpp::cQueue **Q;         // Incoming packets Q per VL per out port
+public:
+  omnetpp::cQueue **Q; // Incoming packets Q per VL per out port
   // return 1 if incremented the number of parallel sends
   int incrBusyUsedPorts();
-
-  
 };
 
 #endif
