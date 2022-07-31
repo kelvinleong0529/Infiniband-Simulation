@@ -17,7 +17,7 @@ void IBRingAllreduceApp::initialize()
     num_workers_ = nodeAllocVec_.size();
     finishCount_ = 24;
     data_.resize(num_workers_, 0);
-    // use self message to start 
+    // use self message to start
     if (num_workers_ != 0)
     {
         data_.at((2 * num_workers_ + rank_ - 2) % num_workers_) = 1;
@@ -25,22 +25,22 @@ void IBRingAllreduceApp::initialize()
     }
 }
 
-void IBRingAllreduceApp::handleMessage(cMessage* msg)
+void IBRingAllreduceApp::handleMessage(cMessage *msg)
 {
     if (!msg->isSelfMessage())
     {
-        const char* g = msg->getArrivalGate()->getFullName();
-        EV << "-I- " << getFullPath() << " received from:" 
-            << g << omnetpp::endl;
+        const char *g = msg->getArrivalGate()->getFullName();
+        EV << "-I- " << getFullPath() << " received from:"
+           << g << omnetpp::endl;
     }
     // init or sent a whole message
     if (msg->isSelfMessage() || msg->getKind() == IB_SENT_MSG)
     {
         if (!msg->isSelfMessage())
         {
-            const char* g = msg->getArrivalGate()->getFullName();
-            EV << "-I- " << getFullPath() << " received sent msg from:" 
-                << g << omnetpp::endl;
+            const char *g = msg->getArrivalGate()->getFullName();
+            EV << "-I- " << getFullPath() << " received sent msg from:"
+               << g << omnetpp::endl;
         }
         is_sending_ = false;
         trySendNext();
@@ -48,12 +48,12 @@ void IBRingAllreduceApp::handleMessage(cMessage* msg)
     // received a whole message
     else if (msg->getKind() == IB_DONE_MSG)
     {
-        const char* g = msg->getArrivalGate()->getFullName();
-        EV << "-I- " << getFullPath() << " received done msg " << recv_counter_ << " from:" 
-            << g << omnetpp::endl;
+        const char *g = msg->getArrivalGate()->getFullName();
+        EV << "-I- " << getFullPath() << " received done msg " << recv_counter_ << " from:"
+           << g << omnetpp::endl;
 
         ++recv_counter_;
-        IBDoneMsg* d_msg = reinterpret_cast<IBDoneMsg*>(msg);
+        IBDoneMsg *d_msg = reinterpret_cast<IBDoneMsg *>(msg);
         ++data_.at(d_msg->getAppIdx());
         trySendNext();
 
@@ -74,9 +74,9 @@ void IBRingAllreduceApp::handleMessage(cMessage* msg)
     delete msg;
 }
 
-cMessage* IBRingAllreduceApp::getMsg(unsigned& msgIdx)
+cMessage *IBRingAllreduceApp::getMsg(unsigned &msgIdx)
 {
-    IBAppMsg* p_msg = new IBAppMsg(nullptr, IB_APP_MSG);
+    IBAppMsg *p_msg = new IBAppMsg(nullptr, IB_APP_MSG);
     p_msg->setAppIdx((4 * num_workers_ + rank_ - 2 - msgIdx) % num_workers_);
     p_msg->setMsgIdx(msgIdx);
     p_msg->setDstLid(nodeAllocVec_[rank_ + 1 > num_workers_ ? 0 : rank_]);
@@ -99,16 +99,16 @@ void IBRingAllreduceApp::trySendNext()
         if (data_.at(idx) >= 1)
             goto send;
     }
-    else 
+    else
     {
         if (data_.at(idx) == 2)
             goto send;
     }
     return;
 
-    send:
+send:
     is_sending_ = true;
-    cMessage* msg_new = getMsg(counter_);
+    cMessage *msg_new = getMsg(counter_);
     send(msg_new, "out$o");
     return;
 }

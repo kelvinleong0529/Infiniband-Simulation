@@ -23,11 +23,11 @@
 
 Define_Module(Pktfwd);
 
-void Pktfwd::initialize() 
+void Pktfwd::initialize()
 {
 
 	Switch = getParentModule();
-	if (!Switch) 
+	if (!Switch)
 	{
 		error("-E- Failed to obtain an parent Switch module");
 	}
@@ -38,53 +38,52 @@ void Pktfwd::initialize()
 	int fdbIdx = par("fdbIndex");
 	vecFiles *vecMgr = vecFiles::get();
 	FDB = vecMgr->getIntVec(fdbsFile, fdbIdx);
-	if (FDB == NULL) 
+	if (FDB == NULL)
 	{
 		error("-E- Failed to obtain an FDB %s, %d", fdbsFile, fdbIdx);
-	} 
-	else 
+	}
+	else
 	{
-		EV<< "-I- " << getFullPath() << " Obtained FDB of size:"
-		<< FDB->size() << omnetpp::endl;
+		EV << "-I- " << getFullPath() << " Obtained FDB of size:"
+		   << FDB->size() << omnetpp::endl;
 	}
 }
 
 // get the output port for the given LID - the actual AR or deterministic routing
-int Pktfwd::getPortByLID(unsigned int sLid, unsigned int dLid) 
+int Pktfwd::getPortByLID(unsigned int sLid, unsigned int dLid)
 {
 	Enter_Method("getPortByLID LID: %d", dLid);
 	unsigned int outPort; // the resulting output port
-	if (dLid >= FDB->size()) 
+	if (dLid >= FDB->size())
 	{
-	    error("-E- getPortByLID: LID %d is out of available FDB range %d",
-		dLid, FDB->size() - 1);
+		error("-E- getPortByLID: LID %d is out of available FDB range %d",
+			  dLid, FDB->size() - 1);
 	}
-	outPort = (*FDB)[dLid];	
-	return(outPort);
+	outPort = (*FDB)[dLid];
+	return (outPort);
 }
 
 // report queuing of flits on TQ for DLID (can be negative for arb)
-int Pktfwd::repQueuedFlits(unsigned int rq, unsigned int tq, unsigned int dlid, int numFlits) 
+int Pktfwd::repQueuedFlits(unsigned int rq, unsigned int tq, unsigned int dlid, int numFlits)
 {
 	Enter_Method("repQueuedFlits tq:%d flits:%d", tq, numFlits);
-	return(0);
+	return (0);
 }
 
 // IBuf received a TQLoadUpdate - Handle Received Port Usage Notification
-void Pktfwd::handleTQLoadMsg(unsigned int tq, unsigned int srcRank, unsigned int firstLid, unsigned int lastLid, int load) 
+void Pktfwd::handleTQLoadMsg(unsigned int tq, unsigned int srcRank, unsigned int firstLid, unsigned int lastLid, int load)
 {
 	Enter_Method("handleTQLoadMsg tq:%d srcRank:%d lid-range: [%d,%d] load:%d", tq, srcRank, firstLid,
-			lastLid, load);
+				 lastLid, load);
 	EV << "-I- " << getFullPath() << " handleTQLoadMsg tq: " << tq << " srcRank: " << srcRank << " lids: "
-			<< firstLid << "," << lastLid << " load: " << load << omnetpp::endl;
-
+	   << firstLid << "," << lastLid << " load: " << load << omnetpp::endl;
 }
 
 void Pktfwd::finish()
 {
 }
 
-Pktfwd::~Pktfwd() 
+Pktfwd::~Pktfwd()
 {
 	delete FDB;
 }
