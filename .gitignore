@@ -1,0 +1,15 @@
+out
+Makefile
+results
+.*
+*.exe
+*_m.cc 
+*_m.h 
+*_sm.cc 
+*_sm.h
+ib_sim*
+!.gitignore
+check*
+ib_model
+ib_model_dbg
+log*txt

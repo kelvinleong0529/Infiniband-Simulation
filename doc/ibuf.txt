@@ -1,0 +1,60 @@
+///////////////////////////////////////////////////////////////////////////
+//
+//         InfiniBand FLIT (Credit) Level OMNet++ Simulation Model
+//
+// Copyright (c) 2004-2013 Mellanox Technologies, Ltd. All rights reserved.
+// This software is available to you under the terms of the GNU
+// General Public License (GPL) Version 2, available from the file
+// COPYING in the main directory of this source tree.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+// BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////
+
+TITLE:
+An IB Input Buffer 
+
+DESCRIPTION:
+The input buffer is responsible for storing incoming packets and
+maintaining credits for that purpose. It also provide means to represent the
+output bandwidth by limiting the number of concurrent packets sent from it.
+
+OPERATION:
+The inout buffer receives packets through the "in" port.
+It pokes to see if the next VL arbiter has a place for pakcets in its VL HoQ 
+buffer. If it does then packets are sent to it through the "out" port.
+The VL Arbiter can notify the input buffer the QoQ is free by providing an 
+event on the "sent" port.
+Incoming flow-control packets are forwarded with relevant data to the 
+output buffer and VL arbiter of the "TX" side of the IB port through the
+txCred and rxCred ports. On the event of receiving or sending packets the
+state of number of free credits is provided to the TX side too.
+
+PARAMETERS:
+
+width :       	  input line width 4x,8x,12x
+isHcaIBuf : 	  if 1 means the input buffer is part
+                 of HCA and no routing done.
+numPorts : 		  number of output ports to drive to
+maxBeingSent :   max number of parallel 
+                 sends = switch "speed-up"
+totalBufferSize :the total buffer size in credits
+maxVL : 			  max VL num. If only VL0 value is 0
+
+maxStatic0 : 	  Max num of credits reserved for VL0
+maxStatic1 : 	  Max num of credits reserved for VL1
+maxStatic2 : 	  Max num of credits reserved for VL2
+maxStatic3 : 	  Max num of credits reserved for VL3
+maxStatic4 : 	  Max num of credits reserved for VL4
+maxStatic5 : 	  Max num of credits reserved for VL5
+maxStatic6 : 	  Max num of credits reserved for VL6
+maxStatic7 : 	  Max num of credits reserved for VL7
+recordVectors:   control recording of output vectors
+

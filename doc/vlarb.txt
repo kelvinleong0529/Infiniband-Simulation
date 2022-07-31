@@ -1,0 +1,40 @@
+///////////////////////////////////////////////////////////////////////////
+//
+//         InfiniBand FLIT (Credit) Level OMNet++ Simulation Model
+//
+// Copyright (c) 2004-2013 Mellanox Technologies, Ltd. All rights reserved.
+// This software is available to you under the terms of the GNU
+// General Public License (GPL) Version 2, available from the file
+// COPYING in the main directory of this source tree.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+// BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////
+
+TITLE:
+An IB VL Arbiter
+
+DESCRIPTION:
+The arbiter has to select which of the packets available on its input HoQ 
+from each of the input ports to sent to the output buffer.
+
+OPERATION:
+According to IB spec.
+
+PARAMETERS:	
+recordVectors: control recording of vectors
+width: Interface width 1x 4x 8x 12x
+isHcaArbiter: if not zero emans the VLA is in HCA
+numPorts: number of input ports 
+coreFreq_MH: Core frequency in MHz
+maxVL: Maximum VL we send on
+vlHighLimit: IB Vl Arb High Limit
+highVLArbEntries: "vl:weight vl:weight ..."
+lowVLArbEntries: "vl:weight vl:weight ..."

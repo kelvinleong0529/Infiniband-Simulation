@@ -1,0 +1,101 @@
+///////////////////////////////////////////////////////////////////////////
+//
+//         InfiniBand FLIT (Credit) Level OMNet++ Simulation Model
+//
+// Copyright (c) 2004-2013 Mellanox Technologies, Ltd. All rights reserved.
+// This software is available to you under the terms of the GNU
+// General Public License (GPL) Version 2, available from the file
+// COPYING in the main directory of this source tree.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+// BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////
+
+TITLE:
+An IB Packet Generator - Injecting Credits into the "out" port
+
+DESCRIPTION:
+The generator provide multiple modes of operation for injecting IB packets
+into the network.
+
+The packets (each holds a single IB credit worth of data) are sent through 
+the "out" port and new ones are injected only after a "sent" event is 
+received on the "sent" port.
+
+OPERATION:
+
+The generator supports multiple traffic injection modes:
+TRF_FLOOD: In flood mode the generator keeps all VLs with at
+           least 2 outstanding packets. If zero (regular mode)
+           the Generator simulates real packet insertion flow.
+TRF_UNI: In Uniform mode, packets are send in burts with delay between 
+         packets and between bursts. We can chose  numbers of bursts, 
+			number of packets per burst, etc... In this case the simulator 
+         simulates real packet insertion flow
+TRF_MIXLEN: Same as TRF_UNI but in this case the packet lenth in bytes is
+				given by a distribution as follows: PktLenDist is a vector with
+				the length of packets we are covering PktLenProb is the 
+				probability related to each of the Length in PktLenDist
+
+The generator also supports multiple traffic distribution modes:
+DST_BY_PARAM: The parameter dstLid is evaluated to select the dstination LID
+DST_SEQ_ONCE: Sequence of destination LIDs is provided. Sequence is sent once.
+DST_SEQ_LOOP: Sequence of destination LIDs is provided. Sequence looped
+DST_RANDOM: Completelly random selection of target LID
+DST_HOT_SPOT: Sends bursts of traffic to a particular LID and randomize 
+				  the rest
+
+
+PARAMETERS:
+
+width: the output link width ,4x,8x,12x
+speed: the output speed 2.5, 5.0, 10.0 [Gbps]
+mtu: Number of credits in MTU
+srcLid: the source LID of the packets
+VL: VL of packets being generated flood mode
+SL: the SL the packets will be injected on
+creditSize : numeric,
+packetlengthbytes: Length of packet in bytes
+packetlength: Length of packet in credit
+msgLengthInMTUs: Total message length in credits
+
+trafficDist: Selects the traffic injection mode from "trfFlood", 
+				 "trfUniform", "trfLengthMix"
+
+TRF_FLOOD mode parameters:
+floodVLs: list fo VLs to flood       
+msgLength: Total message length in bytes
+
+TRF_UNI mode parameters:
+intraBurstDelay: sleep time between bursts in nsec
+interBurstDelay: between packets of same burst in nsec
+burstLength: the length of the burst in packets 
+burstNumber: Number of burst overall
+
+TRF_MIXLEN mode parameters:
+PktLenDist: Vector of packet lengths to inject in B 
+PktLenProb: Probability (in %) of corresp. PktLen defined in PktLenDist 
+
+Destination LID selection parameters:
+dstSeqMode: Selects the mode from: "dstLid", "dstSeqOnce", "dstSeqLoop", 
+				"dstRandom", "dstHotSpot"
+
+Parameters for "dstLid" mode:
+dstLid: the destination LID to sent to if not in sequence modes 
+
+Parameters for modes "dstSeqOnce", "dstSeqLoop":
+dstSeqVecFile: vec file holding the destination sequnce
+sizeSeqVecFile: vec file holding the message size
+dstSeqIndex: index of this generator in sequence file
+
+Parameters for "dstHotSpot" mode:
+dstHotSpotPerc: % of the traffic that go to hot spot
+dstBurstHSDel: [msec] HotSpot traffic in BURST_HOTSPOT
+dstBurstHSInterDel: [msec] Regular Traffic in BURST_HOTSPOT

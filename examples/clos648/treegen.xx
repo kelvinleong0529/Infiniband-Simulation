@@ -1,0 +1,176 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <array>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+int main()
+{
+    const string name = "clos648";
+    constexpr int num_nodes = 648;
+    constexpr int num_l1 = 36;
+    constexpr int num_l2 = 18;
+
+    constexpr int nodes_per_l1 = num_nodes / num_l1;
+    const string fdbs_name = name + ".fdbs";
+    const string fdbs_ini_name = name + ".fdbs.ini";
+    const string srclid_name = name + "_srcLid.ini";
+    const string ned_name = name + ".ned";
+
+    ////////////////////////////////////////////////////////////////
+    // NED File
+    ////////////////////////////////////////////////////////////////
+    ofstream nedfile(ned_name);
+    nedfile << "import ib_model.*;\n" << "package ib_model.examples." << name << ";\n\n";
+    nedfile << "network " << name << "\n{\n\tsubmodules:\n\t\tH[" << num_nodes << "]: HCA {\n"
+            << "\t\t\tparameters:\n\t\t\t\t@display(\"i=device/server2;p=80,109\");\n\t\t}\n\n";
+    nedfile << "\t\tsw_l1[" << num_l1 << "]: Switch {\n\t\t\tparameters:\n"
+            << "\t\t\t\tnumSwitchPorts = 36;\n\t\t\t\t@display(\"p=182,58\");\n\t\t\tgates:\n\t\t\t\tport[36];\n\t\t}\n\n";
+    nedfile << "\t\tsw_l2[" << num_l2 << "]: Switch {\n\t\t\tparameters:\n"
+            << "\t\t\t\tnumSwitchPorts = 36;\n\t\t\t\t@display(\"p=182,58\");\n\t\t\tgates:\n\t\t\t\tport[36];\n\t\t}\n\n";
+    nedfile << "\tconnections:\n";
+
+    nedfile << "\t\tfor i = 0.." << num_nodes - 1 << "\n\t\t{\n\t\t\tH[i].port <--> IB4XQDRWire <--> "
+            "sw_l1[int(i/18)].port[i % 18];\n\t\t}\n";
+    
+    nedfile << "\t\tfor i = 0.." << num_l2 - 1 << "\n\t\t{\n";
+    for (int counter = 0; counter < num_l1; ++counter)
+    {
+        nedfile << "\t\t\tsw_l1[" << counter << "].port[i + 18] <--> IB4XQDRWire <--> sw_l2[i].port["
+                << counter << "];\n";
+    }
+    nedfile << "\t\t}\n}";
+
+    nedfile.close();
+
+    ////////////////////////////////////////////////////////////////
+    // Ring All-reduce App Files
+    ////////////////////////////////////////////////////////////////
+
+    // Custom Front End: 
+    array<int, num_nodes> appidxArray;
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        appidxArray[i] = 0;
+    }
+
+    // Common Back End:
+    unordered_map<int, vector<int>> appidxDict;
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        appidxDict[appidxArray[i]].push_back(i);
+    }
+    for (auto it = appidxDict.begin(); it != appidxDict.end(); ++it)
+    {
+        int idx = it->first;
+        const vector<int>& vec = it->second;
+        string appFileName = name + ".app" + to_string(idx) + ".nodealloc";
+
+        ofstream appFile(appFileName);
+        if (idx == -1)
+        {
+            appFile << "0";
+            appFile.close();
+            continue;
+        }
+        appFile << vec.size() << " ";
+        for (const int x : vec)
+        {
+            appFile << x + 1 << " ";
+        }
+        appFile << "\n";
+        appFile.close();
+    }
+
+    string appIniName = name + ".app.ini";
+    ofstream appIniFile(appIniName);
+    for (auto it = appidxDict.begin(); it != appidxDict.end(); ++it)
+    {
+        int idx = it->first;
+        const vector<int>& vec = it->second;
+        string appFileName = "examples/" + name + "/" + name + ".app" + to_string(idx) + ".nodealloc";
+        for (const int x : vec)
+        {
+            appIniFile << "**.H[" << x << "]**.nodeAllocFile = \"" << appFileName << "\"\n";
+        }
+    }
+    appIniFile.close();
+
+    ////////////////////////////////////////////////////////////////
+    // Routing Vectors (fdbs)
+    ////////////////////////////////////////////////////////////////
+
+    ofstream fdbs(fdbs_name);
+    // output l2
+    fdbs << 0 << ": " << num_nodes << " ";
+    for (int i = 0; i < num_l1; ++i)
+    {
+        for (int j = 0; j < nodes_per_l1; ++j)
+        {
+            fdbs << i << " ";
+        }
+    }
+    fdbs << "\n";
+
+    // output l1
+    for (int line = 1; line <= num_l1; ++line)
+    {
+        fdbs << line << ": " << num_nodes << " ";
+        for (int i = 1; i <= num_l1; ++i)
+        {
+            if (i == line)
+            {
+                for (int j = 0; j < nodes_per_l1; ++j)
+                    fdbs << j << " ";
+            }
+            else 
+            {
+                for (int j = 0; j < nodes_per_l1; ++j)
+                    fdbs << i % nodes_per_l1 + nodes_per_l1 << " ";
+            }
+        }
+        fdbs << "\n";
+    }
+    fdbs.close();
+
+    // generate fdbs.ini
+    ofstream fdbsIniFile(fdbs_ini_name);
+    fdbsIniFile << "**.fdbsVecFile = \"" << fdbs_name << "\"\n";
+    fdbsIniFile << "**.**sw_l2**.**.fdbIndex = 0\n";
+    for (int i = 1; i <= num_l1; ++i)
+    {
+        fdbsIniFile << "**.**sw_l1[" << i - 1 << "].**.fdbIndex = " << i << "\n";
+    }
+    fdbsIniFile.close();
+
+    ////////////////////////////////////////////////////////////////
+    // LID Allocation
+    ////////////////////////////////////////////////////////////////
+
+    ofstream srclid(srclid_name);
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        int idx = appidxArray[i];
+        int counter = 0;
+        const vector<int>& vec = appidxDict[idx];
+
+        if (idx == -1)
+            goto print;
+        while (true)
+        {
+            if (vec[counter] == i)
+                break;
+            ++counter;
+        }
+        print:
+        srclid << "**.H[" << i << "]**.rank = " << counter + 1 << "\n";
+    }
+    srclid << "\n\n";
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        srclid << "**.H[" << i << "]**.srcLid = " << i + 1 << "\n";
+    }
+    srclid.close();
+}

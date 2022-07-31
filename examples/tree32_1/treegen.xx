@@ -1,0 +1,152 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <array>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+int main()
+{
+    const string name = "tree32_1";
+    constexpr int num_nodes = 32;
+    constexpr int num_l1 = 4;
+
+    constexpr int nodes_per_l1 = num_nodes / num_l1;
+    const string fdbs_name = name + ".fdbs";
+    const string fdbs_ini_name = name + ".fdbs.ini";
+    const string srclid_name = name + "_srcLid.ini";
+
+    ////////////////////////////////////////////////////////////////
+    // Ring All-reduce App Files
+    ////////////////////////////////////////////////////////////////
+
+    // Custom Front End: 
+    array<int, num_nodes> appidxArray;
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        int remain = i % 8;
+        if (remain < 4)
+            appidxArray[i] = 0;
+        else
+            appidxArray[i] = -1;
+    }
+
+    // Common Back End:
+    unordered_map<int, vector<int>> appidxDict;
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        appidxDict[appidxArray[i]].push_back(i);
+    }
+    for (auto it = appidxDict.begin(); it != appidxDict.end(); ++it)
+    {
+        int idx = it->first;
+        const vector<int>& vec = it->second;
+        string appFileName = name + ".app" + to_string(idx) + ".nodealloc";
+
+        ofstream appFile(appFileName);
+        if (idx == -1)
+        {
+            appFile << "0";
+            appFile.close();
+            continue;
+        }
+        appFile << vec.size() << " ";
+        for (const int x : vec)
+        {
+            appFile << x + 1 << " ";
+        }
+        appFile << "\n";
+        appFile.close();
+    }
+
+    string appIniName = name + ".app.ini";
+    ofstream appIniFile(appIniName);
+    for (auto it = appidxDict.begin(); it != appidxDict.end(); ++it)
+    {
+        int idx = it->first;
+        const vector<int>& vec = it->second;
+        string appFileName = "examples/" + name + "/" + name + ".app" + to_string(idx) + ".nodealloc";
+        for (const int x : vec)
+        {
+            appIniFile << "**.H[" << x << "]**.nodeAllocFile = \"" << appFileName << "\"\n";
+        }
+    }
+    appIniFile.close();
+
+    ////////////////////////////////////////////////////////////////
+    // Routing Vectors (fdbs)
+    ////////////////////////////////////////////////////////////////
+
+    // output core
+    ofstream fdbs(fdbs_name);
+    fdbs << 0 << ": " << num_nodes << " ";
+    for (int i = 0; i < num_l1; ++i)
+    {
+        for (int j = 0; j < nodes_per_l1; ++j)
+        {
+            fdbs << i << " ";
+        }
+    }
+    fdbs << "\n";
+
+    // output l1
+    for (int line = 1; line <= num_l1; ++line)
+    {
+        fdbs << line << ": " << num_nodes << " ";
+        for (int i = 1; i <= num_l1; ++i)
+        {
+            if (i == line)
+            {
+                for (int j = 0; j < nodes_per_l1; ++j)
+                    fdbs << j << " ";
+            }
+            else 
+            {
+                for (int j = 0; j < nodes_per_l1; ++j)
+                    fdbs << "8 ";
+            }
+        }
+        fdbs << "\n";
+    }
+    fdbs.close();
+
+    // generate fdbs.ini
+    ofstream fdbsIniFile(fdbs_ini_name);
+    fdbsIniFile << "**.fdbsVecFile = \"" << fdbs_name << "\"\n";
+    fdbsIniFile << "**.**core**.**.fdbIndex = 0\n";
+    for (int i = 1; i <= num_l1; ++i)
+    {
+        fdbsIniFile << "**.**sw[" << i - 1 << "].**.fdbIndex = " << i << "\n";
+    }
+    fdbsIniFile.close();
+
+    ////////////////////////////////////////////////////////////////
+    // LID Allocation
+    ////////////////////////////////////////////////////////////////
+
+    ofstream srclid(srclid_name);
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        int idx = appidxArray[i];
+        int counter = 0;
+        const vector<int>& vec = appidxDict[idx];
+
+        if (idx == -1)
+            goto print;
+        while (true)
+        {
+            if (vec[counter] == i)
+                break;
+            ++counter;
+        }
+        print:
+        srclid << "**.H[" << i << "]**.rank = " << counter + 1 << "\n";
+    }
+    srclid << "\n\n";
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        srclid << "**.H[" << i << "]**.srcLid = " << i + 1 << "\n";
+    }
+    srclid.close();
+}
