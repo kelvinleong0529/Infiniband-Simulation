@@ -10,7 +10,7 @@
 
 # **Components**
 ## **1.Task Generator**
-- create AI training / computational tasks; initialize the relevant data information & size in every flit , and forward it to [CPU](#2central-proccesing-unit-cpu) to assign the computing tasks among the nodes in the networking cluster
+- create AI training / computational tasks; initialize the relevant data information & size in every `flit` , and forward it to [CPU](#2central-proccesing-unit-cpu) to assign the computing tasks among the nodes in the networking cluster
 ## **2.Central Controller**
 - the core component that manages the entire networking cluster
 - break down the AI training tasks received from [Task Generator](#1task-generator) ,and distributes it evenly among every nodes in the networking cluster
@@ -36,7 +36,7 @@
 - breaks down the message received from [App](#7-application) into finer `packets, flits`, and analyze the main components in `flit` headers
 - responsible for controlling the injection rate of the node, according to the selected congestion protocol, after receiving `Backward Explicit Congestion Notificaion (BECN)` value
 ## **9. Virtual Lane Arbiter**
-- responsible for the arbitration on` Virtual Lane (VL)`, and select the appropriate Virtual Lane for data transmission based on real-time conditions
+- responsible for the arbitration on `Virtual Lane (VL)`, and select the appropriate Virtual Lane for data transmission based on real-time conditions
 - temporarilt store the received data on a specific Virtual Lane, then check whether the node has enough credit to forward the `flit`, if criterias are fulfilled check which Virtual Lane is suitable for data transmission (based on `Weighted Round Robin` algorithm)
 ## **10. Output Buffer**
 - a buffer that temporarily stored the `flit` before they are transmitted to another node
