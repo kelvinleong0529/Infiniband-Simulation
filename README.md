@@ -3,8 +3,8 @@
 - The details of the network simulatin model are as below:
 1. Networking Protocol: `Infiniband`
 2. Data Transmission Principile: `Credit-based Flow Control`
-3. Congestion Control Mechanism: `Congestion Control Table Index`
-4. Virtual Lane Selection Algorithm: `Wighted Round Robin`
+3. Congestion Control Mechanism: `Congestion Control Table Indeing (BECN, FECN)`
+4. Virtual Lane Selection Algorithm: `Wighted Round Robin (WRR)`
 5. Data Transmission Framework: `Ring Allreduce`
 6. Data Granularity: `Flow Control Unit (FLIT)`
 
