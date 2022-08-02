@@ -22,10 +22,10 @@
 - responsible for AI training + relevant computation
 - when it receives the data required for AI training from [CPU](#3-central-processing-unit-cpu), it performs the required computaion (model training), and forward it to [HCA](#5-host-channel-adapters-hca) and ready to be transmitted to the destination node
 ## **5. Host Channel Adapters (HCA)**
-- a module that integrates [App](#7-application), [Gen](#8-generator), [Virtual Lane Arbiter](#9-virtual-lane-arbiter-vlarb), [Output Buffer](#10-output-buffer-obuf), [Input Buffer](#11-input-buffer-ibuf) & [Sink](#12-sink)
+- a module that integrates [App](#7-application), [Gen](#8-generator), [Virtual Lane Arbiter](#9-virtual-lane-arbiter), [Output Buffer](#10-output-buffer), [Input Buffer](#11-input-buffer) & [Sink](#12-sink)
 - similar to a `Network Interface Card (NIC)`, it encapsulates the trained data, and transmit them to the destination node through network link layer to update the AI model parameters
 ## **6. Switch**
-- a module that integrates [Virtual Lane Arbiter](#8-virtual-lane-arbiter-vlarb), [Output Buffer](#9-output-buffer-obuf), [Input Buffer](#10-input-buffer-ibuf) & [Packet Forwarder](#13-packet-forwarder)
+- a module that integrates [Virtual Lane Arbiter](#8-virtual-lane-arbiter-vlarb), [Output Buffer](#10-output-buffer), [Input Buffer](#11-input-buffer) & [Packet Forwarder](#13-packet-forwarder)
 - responsible for the information / `flit` exchange between different nodes in the networking cluster 
 ## **7. Application**
 - component that connects the [HCA](#5-host-channel-adapters-hca) and lower-level [GPU](#4-graphic-processing-unit-gpu), responsible for coordinating the information / `flit` exchange between the 2 components
