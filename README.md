@@ -1,10 +1,10 @@
 # **Introduction**
 - this projects aims to **simulate the data flow mechanism, explore performance + bottleneck** in [Infiniband](https://network.nvidia.com/related-docs/whitepapers/IB_Intro_WP_190.pdf) network specifically for distributed machine-learning systems in data center using [OMNeT++](https://omnetpp.org/) (based on [OMNeT++ Infiniband open source](https://omnetpp.org/download-items/InfiniBand.html))
-- The details of the network simulatin model are as below:
+- The details of the network simulation model are as below:
 1. Networking Protocol: `Infiniband`
 2. Data Transmission Principle: `Credit-based Flow Control`
 3. Congestion Control Mechanism: `Congestion Control Table Indexing (BECN, FECN)`
-4. Virtual Lane Selection Algorithm: `Wighted Round Robin (WRR)`
+4. Virtual Lane Selection Algorithm: `Weighted Round Robin (WRR)`
 5. Data Transmission Framework: `Ring Allreduce`
 6. Data Granularity: `Flow Control Unit (FLIT)`
 
