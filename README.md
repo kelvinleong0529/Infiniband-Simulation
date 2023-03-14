@@ -20,7 +20,8 @@
 - when it receives AI training tasks from [Central Controller](#2central-controller), it forwards them to [GPU](#4-graphic-processing-unit-gpu) for computational training
 ## **4. Graphic Processing Unit (GPU)**
 - responsible for AI training + relevant computation
-- when it receives the data required for AI training from [CPU](#3-central-processing-unit-cpu), it performs the required computaion (model training), and forward it to [HCA](#5-host-channel-adapters-hca) and ready to be transmitted to the destination node
+- when it receives the data required for AI training from [CPU](#3-central-processing-unit-cpu), it performs the required computaion (model training)
+- whn the training has completed, it forwards the data to [HCA](#5-host-channel-adapters-hca) and ready to be transmitted to the destination node
 ## **5. Host Channel Adapters (HCA)**
 - a module that integrates [App](#7-application), [Gen](#8-generator), [Virtual Lane Arbiter](#9-virtual-lane-arbiter), [Output Buffer](#10-output-buffer), [Input Buffer](#11-input-buffer) & [Sink](#12-sink)
 - similar to a `Network Interface Card (NIC)`, it encapsulates the trained data, and transmit them to the destination node through network link layer to update the AI model parameters
